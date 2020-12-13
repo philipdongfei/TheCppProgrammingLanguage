@@ -11,7 +11,7 @@ map<string, string> g_pages;
 mutex g_pages_mutex;
 
 
-mutex cout_mutex;
+mutex cout_mutex, error_mtx;
 
 void save_page(const string &url)
 {
@@ -57,6 +57,21 @@ public:
     }
 
 };
+
+void mutex_error(){
+
+    try{
+        //don't effect
+        error_mtx.lock();
+        error_mtx.lock(); // try to lock a second time
+
+    }catch(system_error& e){
+        error_mtx.unlock();
+        cout << e.what() << endl;
+        cout << e.code() << endl;
+    }
+
+}
 int main()
 {
     thread t1{hello};
@@ -81,6 +96,9 @@ int main()
     thread t6(&X::fun2, &x);
     t5.join();
     t6.join();
+
+    //thread t7(mutex_error);
+    //t7.join();
 
 }
 
